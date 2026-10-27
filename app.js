@@ -1,0 +1,45 @@
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const puzzles = [
+    {type:"NUMBER PATTERN",q:"What number comes next? 3, 6, 12, 24, …",a:["36","42","48","30"],correct:2,hint:"Each number is multiplied by the same amount.",why:"Each number doubles: 24 × 2 = 48."},
+    {type:"TRICK QUESTION",q:"A farmer has 17 sheep. All but 9 run away. How many remain?",a:["8","9","17","0"],correct:1,hint:"Read the words carefully: “all but 9.”",why:"All except 9 ran away, so 9 remain."},
+    {type:"LOGIC PUZZLE",q:"You pass the runner in second place. What place are you in now?",a:["First","Second","Third","It depends"],correct:1,hint:"You take the place of the person you passed.",why:"You are now in second place."},
+    {type:"ODD ONE OUT",q:"Which one does not belong?",a:["Triangle","Square","Circle","Cube"],correct:3,hint:"Think about flat shapes versus solid objects.",why:"A cube is three-dimensional; the others are 2D shapes."},
+    {type:"LETTER LOGIC",q:"Which letter comes next? O, T, T, F, F, S, S, …",a:["E","N","T","O"],correct:0,hint:"Say the numbers one, two, three… in English.",why:"They are the first letters of One, Two, Three… Eight = E."},
+    {type:"QUICK MATH",q:"A bat and ball cost Rs 110 together. The bat costs Rs 100 more than the ball. What does the ball cost?",a:["Rs 5","Rs 10","Rs 15","Rs 20"],correct:0,hint:"If the ball costs Rs 5, the bat costs Rs 105.",why:"Rs 5 + Rs 105 = Rs 110, and the difference is Rs 100."},
+    {type:"PATTERN",q:"What number is missing? 2, 5, 10, 17, 26, …",a:["35","36","37","38"],correct:2,hint:"Look at the differences between numbers.",why:"Differences are +3, +5, +7, +9, so next is +11 = 37."},
+    {type:"WORD TRAP",q:"How many months have 28 days?",a:["1","2","6","12"],correct:3,hint:"Does the question ask which month has only 28 days?",why:"All 12 months have at least 28 days."},
+    {type:"LOGIC PUZZLE",q:"If 5 machines make 5 toys in 5 minutes, how long do 100 machines take to make 100 toys?",a:["5 minutes","20 minutes","100 minutes","500 minutes"],correct:0,hint:"Each machine makes one toy in five minutes.",why:"Each machine makes one toy in 5 minutes, so 100 machines make 100 in 5 minutes."},
+    {type:"NUMBER PATTERN",q:"What comes next? 1, 1, 2, 3, 5, 8, …",a:["11","12","13","15"],correct:2,hint:"Add the previous two numbers.",why:"5 + 8 = 13."},
+    {type:"TRICK QUESTION",q:"You have one match and enter a dark room with a candle, a lamp and a fireplace. What do you light first?",a:["Candle","Lamp","Fireplace","The match"],correct:3,hint:"What must be burning before anything else?",why:"You light the match first."},
+    {type:"VISUAL LOGIC",q:"Which number is both even and prime?",a:["1","2","4","6"],correct:1,hint:"A prime number has exactly two positive factors.",why:"2 is the only even prime number."}
+  ];
+  let mode="solo", run=[], index=0, score=0, streak=0, timer=20, interval=null, locked=false, sound=true;
+  let best=Number(localStorage.getItem("mtBest")||0);
+  const todayKey=new Date().toLocaleDateString("en-CA");
+  $("year").textContent=new Date().getFullYear();
+  function stats(){ $("bestScore").textContent=best; $("score").textContent=score; $("streak").textContent=streak+" 🔥"; $("levelPill").textContent="LEVEL "+(1+Math.floor(score/100)); }
+  function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+  function makeRun(){ if(mode==="daily"){let seed=Number(todayKey.replaceAll("-",""));let arr=[...puzzles];for(let i=arr.length-1;i>0;i--){seed=(seed*9301+49297)%233280;let j=Math.floor((seed/233280)*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr.slice(0,5);} return shuffle(puzzles).slice(0,5); }
+  function show(el){el.classList.remove("hidden")} function hide(el){el.classList.add("hidden")}
+  function stopTimer(){if(interval)clearInterval(interval);interval=null;}
+  function start(){stopTimer();run=makeRun();index=0;score=0;streak=0;locked=false;stats();hide($("intro"));hide($("resultArea"));show($("questionArea"));show($("timer"));loadQuestion();}
+  function loadQuestion(){locked=false;timer=20;$("timer").innerHTML="⏱ <b>20</b>s";$("progressBar").style.width="100%";$("feedback").textContent="";hide($("hint"));$("hint").textContent=run[index].hint;$("category").textContent=run[index].type;$("question").textContent=run[index].q;$("answers").innerHTML="";run[index].a.forEach((label,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=label;b.addEventListener("click",()=>choose(i,b));$("answers").appendChild(b)});$("hintBtn").disabled=false;$("skipBtn").disabled=false;interval=setInterval(()=>{timer--;$("timer").innerHTML="⏱ <b>"+timer+"</b>s";$("progressBar").style.width=(timer/20*100)+"%";if(timer<=0){stopTimer();miss("Time's up! "+run[index].why)}},1000);}
+  function choose(i,button){if(locked)return;locked=true;stopTimer();const p=run[index];[...$("answers").children].forEach((b,j)=>{b.disabled=true;if(j===p.correct)b.classList.add("correct")});if(i===p.correct){streak++;score+=10+Math.max(0,timer);$("feedback").textContent="Correct! +"+(10+Math.max(0,timer))+" points ✨";$("feedback").style.color="var(--green)";if(sound)beep(740)}else{streak=0;button.classList.add("wrong");$("feedback").textContent="Not quite. "+p.why;$("feedback").style.color="var(--red)";if(sound)beep(180)}stats();setTimeout(next,1300);}
+  function miss(msg){if(locked)return;locked=true;streak=0;$("feedback").textContent=msg;$("feedback").style.color="var(--red)";[...$("answers").children].forEach((b,j)=>{b.disabled=true;if(j===run[index].correct)b.classList.add("correct")});stats();setTimeout(next,1700);}
+  function next(){index++;if(index>=run.length){finish();return}loadQuestion();}
+  function finish(){stopTimer();hide($("questionArea"));show($("resultArea"));$("finalScore").textContent=score;$("resultTitle").textContent=score>=100?"Brain boss! 🧠":score>=60?"Nice thinking! ⚡":"Keep training! 💜";$("resultText").textContent="You answered "+run.length+" puzzles. Share your score and challenge someone to beat it.";if(score>best){best=score;localStorage.setItem("mtBest",best)}stats();}
+  function beep(freq){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=freq;g.gain.value=.04;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.08);o.onended=()=>c.close()}catch(e){}}
+  function share(){const msg="🧠 I scored "+score+" on MIND TRAP! Can you beat me? "+location.href; if(navigator.share)navigator.share({title:"MIND TRAP challenge",text:msg,url:location.href}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(msg).then(()=>alert("Challenge text copied! Share it with a friend."),()=>prompt("Copy your challenge:",msg));else prompt("Copy your challenge:",msg);}
+  document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");mode=b.dataset.mode;if(mode==="online"){show($("onlinePanel"));hide($("intro"));hide($("questionArea"));hide($("resultArea"));}else{hide($("onlinePanel"));show($("intro"));hide($("questionArea"));hide($("resultArea"));$("intro").querySelector("h2").textContent=mode==="daily"?"Today's brain challenge":mode==="friends"?"Ready to challenge a friend?":"Ready to get trapped?";$("intro").querySelector("p").textContent=mode==="friends"?"Play a run, then share your score with a friend.":"Answer correctly to build your streak. Faster answers earn more points.";}}));
+  $("startBtn").addEventListener("click",start);$("againBtn").addEventListener("click",start);$("shareBtn").addEventListener("click",share);
+  $("hintBtn").addEventListener("click",()=>{show($("hint"));$("hintBtn").disabled=true});
+  $("skipBtn").addEventListener("click",()=>{if(locked)return;stopTimer();locked=true;streak=0;$("feedback").textContent="Skipped. "+run[index].why;$("feedback").style.color="var(--muted)";[...$("answers").children].forEach((b,j)=>{b.disabled=true;if(j===run[index].correct)b.classList.add("correct")});stats();setTimeout(next,1100)});
+  $("soundBtn").addEventListener("click",()=>{sound=!sound;$("soundBtn").textContent=sound?"♫":"🔇"});
+  $("resetBtn").addEventListener("click",()=>{if(confirm("Reset your best score?")){best=0;localStorage.removeItem("mtBest");stats()}});
+  $("createRoom").addEventListener("click",()=>{let code=Math.random().toString(36).slice(2,7).toUpperCase();$("roomCode").value=code;$("roomMessage").textContent="Room code "+code+" created on this device. Share the code with a friend; live synchronized multiplayer is not connected yet."});
+  $("joinRoom").addEventListener("click",()=>{$("roomMessage").textContent=$("roomCode").value.trim()?"Room codes are demo-only in this starter. Connect Firebase or another realtime backend to enable online rooms.":"Enter a room code first.";});
+  if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  stats();
+})();

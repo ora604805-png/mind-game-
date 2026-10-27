@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080b18">
+  <meta name="description" content="MIND TRAP — quick brain puzzles, streaks and friendly challenges.">
+  <title>MIND TRAP — Beat Your Brain</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="glow glow-a"></div><div class="glow glow-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Mind Trap home"><span class="brain">◉</span> MIND<span>TRAP</span></a>
+    <div class="top-actions"><span class="pill" id="levelPill">LEVEL 1</span><button class="icon-btn" id="soundBtn" aria-label="Toggle sound" title="Sound effects">♫</button></div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">THINK DIFFERENT. THINK FASTER.</p>
+      <h1>TRAP YOUR <span>MIND.</span></h1>
+      <p class="sub">Tiny puzzles. Big brain energy. Can you keep your streak alive?</p>
+    </section>
+
+    <section class="stats" aria-label="Your stats">
+      <div class="stat"><span>BEST SCORE</span><strong id="bestScore">0</strong></div>
+      <div class="stat"><span>THIS RUN</span><strong id="score">0</strong></div>
+      <div class="stat"><span>STREAK</span><strong id="streak">0 🔥</strong></div>
+    </section>
+
+    <nav class="tabs" aria-label="Game mode">
+      <button class="tab active" data-mode="solo">⚡ Solo</button>
+      <button class="tab" data-mode="daily">📅 Daily</button>
+      <button class="tab" data-mode="friends">🔗 Challenge</button>
+      <button class="tab" data-mode="online">🌐 Online</button>
+    </nav>
+
+    <section class="game-card">
+      <div class="card-head"><span class="tag" id="category">LOGIC PUZZLE</span><span class="timer" id="timer">⏱ <b>20</b>s</span></div>
+      <div id="intro" class="intro">
+        <div class="orb">🧠</div><h2>Ready to get trapped?</h2>
+        <p>Answer correctly to build your streak. Faster answers earn more points.</p>
+        <button class="primary" id="startBtn">START CHALLENGE <span>→</span></button>
+      </div>
+      <div id="questionArea" class="question-area hidden">
+        <div class="progress"><span id="progressBar"></span></div>
+        <h2 id="question">Loading puzzle…</h2>
+        <p id="hint" class="hint hidden"></p>
+        <div id="answers" class="answers"></div>
+        <div class="question-actions"><button class="text-btn" id="hintBtn">💡 Show hint</button><button class="text-btn" id="skipBtn">Skip ↗</button></div>
+        <p id="feedback" class="feedback" aria-live="polite"></p>
+      </div>
+      <div id="resultArea" class="result-area hidden">
+        <div class="orb">🏆</div><h2 id="resultTitle">Run complete!</h2><p id="resultText"></p>
+        <div class="result-score"><span>YOUR SCORE</span><strong id="finalScore">0</strong></div>
+        <button class="primary" id="againBtn">PLAY AGAIN ↻</button>
+        <button class="secondary" id="shareBtn">SHARE MY RESULT ↗</button>
+      </div>
+    </section>
+
+    <section class="online-panel hidden" id="onlinePanel">
+      <div><span class="tag">MULTIPLAYER BETA</span><h2>Challenge a friend</h2><p>Online rooms need a free realtime backend. This starter includes the interface and a shareable challenge code; live synchronized play is the next setup step.</p></div>
+      <div class="room-row"><input id="playerName" maxlength="18" placeholder="Your nickname" aria-label="Your nickname"><button class="primary small" id="createRoom">Create room</button></div>
+      <div class="room-row"><input id="roomCode" maxlength="8" placeholder="Enter room code" aria-label="Room code"><button class="secondary small" id="joinRoom">Join room</button></div>
+      <p id="roomMessage" class="feedback" aria-live="polite"></p>
+    </section>
+
+    <section class="ad-slot" aria-label="Advertisement space">
+      <div class="ad-icon">AD</div><div><strong>Advertisement space</strong><p>Reserved for a responsive banner. No ad overlays during a puzzle.</p></div>
+      <span class="ad-size">320 × 100</span>
+    </section>
+    <footer><span>© <span id="year"></span> MIND TRAP</span><span>Play fair. Train your brain.</span><button id="resetBtn" class="text-btn">Reset stats</button></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
